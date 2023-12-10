@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: tolerations
+spec:
+  nodeSelector:
+    color: blue
+  containers:
+    - name: tole
+      image: nginx
+  tolerations:
+    - key: "color"
+      operator: "Equal"
+      value: "blue"
+      effect: "NoShedule"

@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: Rc
+
+spec:
+  selector:
+    app: production
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: production
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:latest
+          ports:
+           - containerPort: 80
+#$ kubectl apply -f ./nginx-replicationcontroller.yaml
+#kubectl get replicationcontroller/nginx-replicationcontroller-example
+#$ kubectl describe rc/nginx-replicationcontroller-example
+#$ kubectl get pods
+#kubectl get pods -o wide
+#$ kubectl delete pod/nginx-replicationcontroller-example-btz5t
+#ReplicationController is immediately creating a new one in order to match the target number of replicas!
+# kubectl describe rc/nginx-replicationcontroller-example
+#Scaling ReplicationController
+#It is possible to modify an existing ReplicationController object and change the replicas property in the specification to a different number. This process is called scaling—if you increase the number of replicas, you are scaling up (or, more precisely, scaling out), and if you decrease the number of replicas, you are scaling down.
+#kubectl scale rc/nginx-replicationcontroller-example --replicas=5 imperative command
+#kubectl delete rc/nginx-replicationcontroller-example
+#IMPORTANT NOTE
+#
+#In real-world scenarios, if you would like to roll out a new version of your component (Pod), you would need to have two ReplicationController objects (one for the old version of the component, and another one for the new version) and scale them up and down in a coordinated manner. As this process is quite complex, Kubernetes provides more advanced abstractions, such as Deployment and StatefulSet objects.
+# kubectl delete rc/nginx-replicationcontroller-example
+#Now, if you would like to delete just the ReplicationController object, you need to use the --cascade=orphan option for kubectl delete, as follows:
+#kubectl delete rc/nginx-replicationcontroller-example --cascade=orphan
+#What is ReplicaSet and how does it differ from ReplicationController?
+#

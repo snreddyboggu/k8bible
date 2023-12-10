@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: hostpath
+spec:
+  containers:
+    - image: nginx
+      name: hostcontainer
+      volumeMounts:
+        - name: firstvolume
+          mountPath: /test-pd
+  volumes:
+    - name: firstvoulume
+      hostPath:
+        path: /data
+        type:
+          Directory

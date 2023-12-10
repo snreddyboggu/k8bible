@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: fds-imp
+  namespace: project-tiger
+  labels:
+    id: ds-imp
+spec:
+  selector:
+    matchLabels:
+      name: ds-imp
+  template:
+    metadata:
+      labels:
+        name: ds-imp
+    spec:
+
+      containers:
+      - name: ds-imp
+        image: httpd:2.4-alpine
+        resources:
+          limits:
+            memory: 200Mi
+          requests:
+            cpu: 10m
+            memory: 10Mi
+

@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: first-deploy
+  namespace:
+spec:
+
+  replicas: 2
+  selector:
+    matchLabels:
+      app: prod
+  template:
+
+    metadata:
+      name: firstpod
+      labels:
+        app: prod
+    spec:
+      #nodeName: node01
+      containers:
+        - image: abhishekf5/python-sample-app-demo:v1
+          name: fistcontainer
+          volumeMounts:
+            - name: db-connection
+              mountPath: /opt
+
+
+
+          ports:
+           - containerPort: 8000
+      volumes:
+        - name: db-connection
+          configMap:
+            name: test-cm
+

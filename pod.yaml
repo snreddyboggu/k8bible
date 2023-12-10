@@ -1,0 +1,90 @@
+# kubectl run mynginx-pod --image nginx:latest
+#kubectl run nginx-Pod --image nginx:latest
+#you canot create multiple pods using imperative command
+apiVersion: v1
+kind: Pod
+metadata:
+  #pod name
+  name: nginx-pod-example
+spec:
+  containers:
+    - #container name we have an array of containers in the spec: part of the file containing only one container created from the nginx:latest image. The container itself is named nginx-container.
+    - name: ngix-container
+      image: nginx:latest
+#kubectl apply -f file.yaml
+#Reading the Kubernetes cluster can be achieved using two
+#kubectl commands: kubectl get and kubectl describe.
+#kubectl get Pods
+#kubectl describe Pods nginx-Pod.
+#Listing the objects in JSON or YAML
+#kubectl get Pods -o yaml # In YAML format
+#
+#$ kubectl get Pods -o json # In JSON format
+#
+## If you know the Pod name, you can also get a specific Pod
+#
+#$ kubectl get Pods <POD_NAME> -o yaml
+#
+## OR
+#
+#$ kubectl get Pods <POD_NAME> -o json
+#Backing up your resource using the list operation
+#$ kubectl get Pods/nginx-Pod -o yaml > nginx-Pod.yaml
+#$ kubectl get Pods/nginx-Pod -o yaml > nginx-Pod.yaml
+#$ kubectl get Pods/nginx-Pod -o yaml > nginx-Pod.yaml
+#Accessing a Pod from the outside world
+#kubectl port-forward Pod/nginx-Pods 8080:80
+#kubectl port-forward Pod/nginx-Pods :80
+#Entering a container inside a Pod
+#$ kubectl exec -ti Pods nginx-Pod bash
+#Deleting a Pod
+#kubectl delete Pods nginx-Pod
+#
+#$ # or...
+#
+#$ kubectl delete Pods/nginx-Pod
+#kubectl delete -f nginx-Pod.yaml
+#ith that, we have reviewed the most important aspects of Pod management, such as launching a Pod with the imperative or declarative syntax, deleting a Pod, and also listing and describing them. Now, I will introduce one of the most important aspects of Pod management in Kubernetes: labeling and annotating.
+#Labeling and annotating the Pods
+#kubectl get Pods --label "environment=production"
+#What are annotations and how do they differ from labels?
+#kubectl run nginx-Pod --image nginx --label "tier=frontend"
+#kubectl run nginx-Pod --image nginx --label "tier=frontend" --label "environment=prod"
+#Another important thing to notice is that labels can be defined with declarative syntax.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: labelexample
+  labels:
+    environment: prod
+    tier: frontend
+spec:
+  containers:
+    - name: ngin
+      image: nginx:latest
+#kubectl get Pods --label "environment=production"
+#Listing labels attached to a Pod
+#kubectl get Pods --show-labels
+#kubectl get Pods --show-labels -o wide
+#Adding or updating a label to/of a running Pod
+#kubectl label Pods nginx-Pod stack=blue
+#kubectl label Pods nginx-Pod stack=green --overwrite
+#kubectl get Pods nginx-Pod --show-labels
+#Deleting a label attached to a running Pod
+#kubectl label nginx-Pod stack-
+#Adding an annotation
+#What are jobs?
+#Taking a backup of a database
+#Sending an email
+#Consuming some messages in a queue
+#Running Pods multiple times
+#Running Pods multiple times in parallel
+#Retrying to launch the Pods if they encountered any errors
+#Killing a Pod after a specified number of seconds
+#Creating a job with restartPolicy
+apiVersion:  batch/v1
+kind: Job
+metadata:
+  name: hello-world-job
+spec:
+  

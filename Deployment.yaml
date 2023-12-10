@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: first
+
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+
+  minReadySeconds: 10
+  strategy:
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  template:
+
+    metadata:
+      labels:
+        app: nginx
+        env: test
+    spec:
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 1
+              preference:
+                matchExpressions:
+                  - key: another-node-label-key
+                    operator: In
+                    values:
+                      - another-node-label-value
+
+
+
+      containers:
+        - name: nginx
+          image: nginx:latest
+          ports:
+           - containerPort: 80
+#$ kubectl apply -f ./nginx-deployment.yaml --record
+#$ kubectl get deploy nginx-deployment-example
+#$ kubectl scale deploy nginx-deployment-example --replicas=10
+#$ kubectl scale deploy nginx-deployment-example --replicas=2
+#$ kubectl describe deploy nginx-deployment-example
+#$ kubectl delete deploy nginx-deployment-example
+#Now, if you would like to delete just the Deployment object, you need to use the --cascade=orphan option for kubectl delete:
+#
+#$ kubectl delete deploy nginx-deployment-example --cascade=orphan
+#$ kubectl rollout status deployment nginx-deployment-example
+#
+#Waiting for deployment "nginx
+#$ kubectl set image deployment nginx-deployment-example nginx=nginx:1.19 --record
+#

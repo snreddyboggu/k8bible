@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: first-pv
+
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteMany
+  PersitantVolumeReclaimPolicy: Retain
+  nfs:
+    path: /opt/s
+    server:
+    readOnly: False

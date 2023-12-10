@@ -1,0 +1,440 @@
+#by 10th of august
+## kubectl run mypod --image=nginx
+#kubectl create deployment mydepoly --image=nginx --dry-run=client -o yaml
+
+#kubectl expose deployment mydeploy --port=80
+#kubectl scale deploy myde --replicas=5
+# 1.create a new pod called web-pod with image busybox
+#allow the pod to be able to set system_time the container shoud sleep 3200 sec
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: web-pod
+  labels:
+    app.kubernetes.io/name: MyApp
+spec:
+  containers:
+  - name: myapp-container
+    image: busybox:1.28
+    command: ['sh', '-c', 'echo The app is running! && sleep 3600']
+    securityContext:
+      capabilities:
+        add: [  "SYS_TIME" ]
+---
+#2.create a deployment called my-project with image nginx :1.16
+#and one replica .next upgrade deployment to version 1.17 using
+#the rolling update make sure that version upgrade is recorded
+#in the resource annotion
+
+# kubectl create deployment my-project --image=nginx:1.16
+#--replicas=1
+#kubectl  set image deploy/my-project nginx1.17 --record
+#3 create a web-app nginx pod with label app=tier
+# kubectl run web-app --image=nginx --labels=app=tier
+#kubectl get po --show-labels
+#4 create a pod on node01 called spod with nginx you have to
+#make sure that it is recreated or restarted automatically incase of any failure
+#this is static pod login to nod1 go to /etc/k8s/manifests write a yaml file for pod it will run always
+#
+apiVersion: v1
+kind: Pod
+metadata:
+  name: static-pod
+  labels:
+    app.kubernetes.io/name: MyApp
+spec:
+  containers:
+  - name: myapp-container
+    image: busybox:1.28
+    command: ['sh', '-c', 'echo The app is running! && sleep 3600']
+    securityContext:
+      capabilities:
+        add: [  "SYS_TIME" ]
+#5 create a pod called pod-multi two containers given below
+#container1 name cont1 and image nginx
+#container name cont2 image busybox sleep 4800
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: static-pod
+  labels:
+    app.kubernetes.io/name: MyApp
+spec:
+  containers:
+  - name: container1
+    image: nginx
+  - name: conteiner2
+    image: busybox:1.28
+    command: ['sh', '-c', 'echo The app is running! && sleep 4800']
+
+#6.get the node1 in json format store in ./node1.json
+#kubectl get node node1 -o json > ./node1.json
+#7  use json path query retrice the osi images of all nodes store it in a one location
+#the osi images are under the nodeinfo section under the status of each node
+#ku get nodes -o json
+#kubectl get nodes -o jsonpath='{.items[*].status.nodeInfo.osImage}'>allnodeinfo.txt
+#8. create a persistant volume with the given specification
+#volume name pvdemo storage 100Mi accesmmode ReadWriteMany hostpath /pv/host-data
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: task-pv-volume
+  labels:
+    type: local
+spec:
+
+  capacity:
+    storage: 100Mi
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+    path: "/mnt/data"
+#9. worker node not running go and trouble shoot
+#kubectl get nodes
+#kubectl get pods -n kube-system
+#kubelet is not working or networking
+#cd /etc/k8s
+#vi kubelet.conf in client certificate change var lib and systemctl restart kubelet
+#10.create nginx pod dns-resolver using image nginx expose it internally
+#with service name dns-resolver-sevice
+#check if the pod and   service name resolvable within cluster
+#use busybox:1.28 for dns look up
+#save the results in /root/nginx.svc
+  # kubectl run dns-resolver --image=nginx
+  #kubectl expose pod dns-resolver --name=dns-resolver-service --port=80 --target-port=80 --type=ClusterIP
+
+#kubectl expose pod dns-resolver --name=dns-resolver-service --port=80 --target-port=80 --type=ClusterIp
+# kubectl run testpod --image=busybox:1.28 --rm -it --restart=Never -- nslookup dns-resolver-service >/opt/nslook.svc
+#11.a pod inside default namespace is not running fix the issue
+# kubectl describe pod and see the events
+# kubectl describe node01 | grep taint
+#kubectl  get po poname -o yaml>pod.yml
+#add toleration tolerations:
+#- key: "key1"
+#  operator: "Exists"
+#  effect: "NoSchedule"
+# 12.
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: test-network-policy
+  namespace: default
+spec:
+  podSelector:
+    matchLabels:
+      role: db
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - from:
+        - ipBlock:
+            cidr: 172.17.0.0/16
+            except:
+              - 172.17.1.0/24
+        - namespaceSelector:
+            matchLabels:
+              project: myproject
+        - podSelector:
+            matchLabels:
+              role: frontend
+      ports:
+        - protocol: TCP
+          port: 6379
+  egress:
+    - to:
+        - ipBlock:
+            cidr: 10.0.0.0/24
+      ports:
+        - protocol: TCP
+          port: 5978
+
+
+
+
+#kubectl run testpod --image=busybox:1.28 --rm -it --restart=Never -- nslookup dns-resolver-service
+#Create a new user “ajeet”. Grant him access to the cluster. User “ajeet” should have permission to create, list, get, update and delete pods. The private key exists at location:​
+#/root/ajeet/.key and csr at /root/ajeet.csr
+#14Kubernetes ServiceAccount, ClusterRole And ClusterRoleBinding
+#Create a new ClusterRole named demo-clusterrole in demo-namespace. Any resource associated with the cluster role should be able to create the following resources:
+#
+#
+#Deployment
+#StatefulSet
+#DaemonSet
+#Create a ServiceAccount named demo-token and bind the ClusterRole with the ServiceAccount.
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  creationTimestamp: 2019-06-16T00:12:34Z
+  name: demo-token
+  namespace: demo-cluster
+---
+#kubectl create ns demo-cluster
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  # "namespace" omitted since ClusterRoles are not namespaced
+  name: demo-clusterrole
+  namespace: demo-cluster
+rules:
+- apiGroups: [""]
+  #
+  # at the HTTP level, the name of the resource for accessing Secret
+  # objects is "secrets"
+  resources: ["secrets","deployments","DaemonSets","statefullsets"]
+  verbs: ["create"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+# This cluster role binding allows anyone in the "manager" group to read secrets in any namespace.
+  kind: ClusterRoleBinding
+metadata:
+  name: read-secrets-global
+subjects:
+- kind: ServiceAccount
+  name: default
+  namespace: demo-cluster
+roleRef:
+  kind: ClusterRole
+  name: demo-clusterrole
+  apiGroup: rbac.authorization.k8s.io
+---
+#NetworkPolicy and It's application to pod
+#
+#
+#Create three pods, pod name and their image name is given below:
+#
+#Pod Name	Image Name & commands
+#nginx	nginx
+#busybox1	busybox1, sleep 3600
+#busybox2	busybox2, sleep 1800
+#Make sure only busybox1 pod should be able to communicate with nginx pod on port 80. Pod busybox2 should not be able to connect to pod Nginx.
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: test-network-policy
+  namespace: default
+spec:
+  podSelector:
+    matchLabels:
+      run: nginx
+  policyTypes:
+    - Ingress
+
+  ingress:
+    - from:
+
+        - podSelector:
+            matchLabels:
+              role: busybox1
+      ports:
+        - protocol: TCP
+          port: 80
+
+---
+#Create a pod “cka-pod” using image “nginx”, with a hard limit of 0.5 CPU and 20 Mi memory in “cka-exam” namespace.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: frontend
+  namespace: cka-exam
+spec:
+  containers:
+  - name: app
+    image: images.my-company.example/app:v4
+    resources:
+
+      limits:
+        memory: "20Mi"
+        cpu: "0.5m"
+  - name: log-aggregator
+    image: images.my-company.example/log-aggregator:v6
+    resources:
+      requests:
+        memory: "64Mi"
+        cpu: "250m"
+      limits:
+        memory: "128Mi"
+        cpu: "500m"
+
+#Pod with ReadOnly access on container's filesystem and mount volume
+#Create a pod by the name “read-onlypod” using the image “alpine”. The process running inside the pod should only have ReadOnly access to the container’s filesystem.
+#
+#
+#
+#Create a volume by the name “my-volume” and mount it at /data ( inside the container). The process running inside the container should have read & write access on the mounted volume. Also, run “sleep 3600” inside the container.
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: redis
+spec:
+  containers:
+  - name: redis
+    image: redis
+    securityContext:
+      readOnlyRootFilesystem: true
+    volumeMounts:
+    - name: redis-storage
+      mountPath: /data/redis
+      readOnly: false
+
+  volumes:
+  - name: redis-storage
+    emptyDir: {}
+    #Add additional capability to The Pod
+    #
+    #
+    #Create a pod by the name “pod-add-settime-capability”, using the image “alpine”. Add capabilities called “SYS_TIME” and “NET_ADMIN” to the container and command “sleep 3600”.
+    #
+    #Set system time by executing the command “sudo date +%T –set “16:00:00”.
+    #
+    #Once the pod is up and running, check system time and store the output under /tmp/cka/pod-add-settime-capability.txt
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: security-context-demo-4
+spec:
+  containers:
+  - name: sec-ctx-4
+    image: alpine
+    command: [ "sh", "-c", "sleep 3600" ]
+    securityContext:
+      capabilities:
+        add: ["NET_ADMIN", "SYS_TIME"]
+        #kubectl exec -it security-context-demo-4 -- date
+        #Lets set the time in the container as per the question
+        #kubectl exec -it security-context-demo-4 — date +%T –set ’16:00:00′
+        #`kubectl exec -it pod-add-settime-capability — date` > /tmp/cka/pod-add-settime-capability.txt
+
+    #Create a multi-pod container by name “multi-container-pod” with below-mentioned details:
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: test-network-policy
+  namespace: default
+spec:
+  podSelector:
+    matchLabels:
+      role: web
+  policyTypes:
+
+    - Egress
+
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              data: db
+        - namespaceSelector:
+            matchLabels:
+              namespce: db
+      ports:
+        - protocol: TCP
+          port:
+    - to:
+        -  podSelector:
+              matchLabels:
+                role: app
+        - namespaceSelector:
+            matchLabels:
+              namespace: app
+      ports:
+        - protocol: TCP
+          port: 5978
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: cka-pv
+  labels:
+    type: local
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 500Mi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/mnt/data"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: task-pv-claim
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Mi
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: cka-secret
+type: kubernetes.io/basic-auth
+stringData:
+  password: ckapassword
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  labels:
+    app: nginx
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: devopstitan/cka-exam:mysql-question-09
+        ports:
+        - containerPort: 80
+---
+#Kubernetes Rolling Deployment and rolling update
+#
+#
+#List pods Sorted by Restart Count.
+#List PersistentVolumes sorted by capacity.
+#List Services Sorted by Name
+# kubectl get services –sort-by=.metadata.name
+#kubectl get pods –sort-by=’.status.containerStatuses[0].restartCount’
+#systemctl status kubelet
+# systemctl status docker
+#sudo systemctl start kubelet
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: masterpod
+  labels:
+    env: test
+spec:
+  nodeSelector:
+     kubernetes.io/hostname: master
+  containers:
+  - name: nginx
+    image: nginx
+    imagePullPolicy: IfNotPresent
+  tolerations:
+  - key: "node-role.kubernetes.io/control-plane"
+    operator: "Exists"
+    effect: "NoSchedule"

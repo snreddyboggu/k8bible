@@ -1,0 +1,12 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  namespace: production
+  name: default-deny-egress-ingress-from-all-namespaces-and-with-in-namespace-as-well
+
+spec:
+  podSelector: {}
+  policyTypes:
+  - Egress
+  - Ingress
+#default-deny-egress-ingress-from-all-namespaces-and-with-in-namespace-as-well

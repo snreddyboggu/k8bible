@@ -1,0 +1,4 @@
+#Concrete scenarios where you need multi-container Pods
+#When the containers are supposed to work together, you should group them into a single Pod. Keep in mind that a Pod cannot span across multiple worker nodes. So, if you create a Pod containing several containers, then all these containers will be created on the same worker node and the same Docker daemon installation.
+#kubectl exec Pods/multi-container-Pod --container nginx-container-1 -- ls
+#

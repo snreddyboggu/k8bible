@@ -1,0 +1,60 @@
+#Managing Namespaces in Kubernetes
+kubectl get namespaces # Or kubectl get ns
+$ kubectl get namespaces default #kubectl get ns works too
+$ kubectl create ns custom-ns
+## ~/custom-ns-2.yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: first-namespace-declarative
+#$ kubectl delete namespaces custom-ns
+ kubectl delete -f custom-ns-2.yaml
+  #Creating a resource inside a namespace with the -n option
+$ kubectl create ns custom-ns
+
+$ kubectl run nginx --image nginx:latest -n custom-ns
+$ kubectl create configmap configmap-custom-ns --from-literal=Lorem=Ipsum -n custom-ns
+apiVersion: v1
+kind: Pod
+metadata:
+  name: cc
+  namespace: custom-ns
+spec:
+  containers:
+    - name: dd
+      image: nginx
+$ kubectl get Pods -n custom-ns
+#Listing all the resources inside a specific namespace
+$ kubectl get all -n custom-ns
+#Understanding that not all resources are in a namespace
+$ kubectl api-resources --namespaced false
+#Switching between namespaces with kubectl
+$ kubectl create ns another-ns
+$ kubectl config set-context $(kubectl config current-context) --namespace=another-ns
+$ kubectl config view | grep -i "namespace"
+$ kubectl config set-context $(kubectl config current-context) --namespace=default
+#Configuring ResourceQuota and Limit at the namespace level
+# ~/Pod-in-namespace-with-request.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-with-rrsources
+  namespace: custom-ns
+spec:
+  containers:
+    - name: nginx
+      image: nginx:latest
+      resources:
+        requests:
+          memory: "512Mi"
+          cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+
+#There are three things to notice about this Pod:
+#
+#It is created inside the custom-ns namespace.
+#It requires 512Mi of memory.
+#It requires 250m of CPU.
+

@@ -1,0 +1,40 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  namespace: critical
+  name: default-deny
+spec:
+  policyTypes:
+    - Ingress
+    - Egressd
+  podSelector:
+    {}
+  #pod selector flower brackerts indicates all the pods in critical namespace we are denying ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              namespace: critical
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              namespace: critical
+      ports:
+        - port: 53
+          protocol:
+            TCP
+        - port: 53
+          protocol:
+            UDP
+# k create ns crtical
+#k label ns crtical namespcae=crtical
+# k get ns  --show-labels
+  #k get netpol -n critical
+  #k create deploy crticaldeploy --image nginx -n crtical
+  # k expose deploy crticaldeploy --port 80 --target-port 80 --type Nodeport -n critical
+  # k get svc -n critical
+#this network policy means within critical namespace ingress
+  #from to egress means with in this crtical namespace pods
+  #can communicate but outside you cannot commucicate
+

@@ -1,0 +1,14 @@
+#kubectl create ns production
+#kubectl run mypod --image nginx --namespace production
+#kubectl get pods -n production
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: prod-role
+  namespace: sir
+rules:
+  - apiGroups: ["","apps"]
+    resources: ["pods","deployments"]
+    verbs: ["get","create"]
+#kubectl get role -n production
+

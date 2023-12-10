@@ -1,0 +1,20 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: production-role-binding
+  namespace: sir
+roleRef:
+  kind: Role
+  name: prod-role
+  apiGroup: ""
+subjects:
+  - kind: User
+    name: satyacred
+    apiGroup: ""
+#kubectl get rolebinding -n production
+#vi ~/.kube/config
+#kubectl config get-context
+#kubectl config set-context --help
+#kubectl config set-context prodcontext --cluster=devcluster --user=maha --namespace=production
+#kubectl config use-context prodcontext
+#kubectl config get-contexts

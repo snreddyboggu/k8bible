@@ -1,0 +1,18 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: first
+  namespace: nsb
+spec:
+  podSelector:
+    matchLabels:
+      app: nsb
+  policyTypes:
+    - Ingress
+
+  ingress:
+    - from:
+
+        - namespaceSelector:
+            matchLabels:
+              app: test

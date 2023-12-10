@@ -1,0 +1,106 @@
+# kubectl run whoami1
+# –image=containous/whoami –port 80 –labels="app=whoami"
+## ~/nodeport-whoami.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: nodeport-whoami
+
+spec:
+  selector:
+    app: whoami
+  type: NodePort
+  ports:
+    - nodePort: 30001
+      port: 80
+      targetPort: 80
+
+
+#kubectl get services
+#$ kubectl delete svc/nodeport-whoami
+#Creating ClusterIP services using the imperative way
+#kubectl run nginx-clusterip --image nginx --expose --port 80
+#kubectl describe svc/nginx-clusterip
+#kubectl get pods/nginx-clusterip --show-labels
+#kubectl get pods/nginx-clusterip --show-labels
+#kubectl exec -ti dnsutils -- wget nginx.default.svc.cluster.local
+#kubectl exec -ti dnsutils -- wget nginx.default.svc.cluster.local
+#kubectl exec -ti dnsutils -- wget nginx.default.svc.cluster.local
+apiVersion: v1
+kind: Service
+metadata:
+  name: cluste-ip-example
+spec:
+  type:  clusterIP
+  selector:
+    app: whoami
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+
+#Understanding headless services
+#Understanding headless services
+#Headless services can be configured by setting the .spec.clusterIP option to None in a YAML configuration file for the ClusterIP service.
+## ~/clusterip-headless.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  metadata:
+
+  name: nginx-clusterip-headless
+
+  spec:
+
+  clusterIP: None
+
+  type: ClusterIP # Indicates that the service is a ClusterIP
+
+    ports:
+
+    - port: 80 # The port exposed by the service
+
+      protocol: TCP
+
+      targetPort: 80 # The destination port on the pods
+#Implementing ReadinessProbe
+#how to ensure a Pod is fully ready before it can receive traffic, possibly from a service?
+#Command—You issue a command that should complete with exit code 0, indicating the Pod is ready.
+#HTTP—You issue an HTTP request that should complete with a response code >= 200 and < 400, which indicates the Pod is ready.
+#TCP—You issue a TCP connection attempt. If the connection is established, the Pod is ready.
+#Here is a YAML file configuring a nginx Pod with a readiness probe of type HTTP:
+# ~/nginx-pod-with-readiness-http.yaml # ~/nginx-pod-with-readiness-http.yaml
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-pod-with-readiness-http
+spec:
+  containers:
+    - name: nginx-pod-readiness-http
+      image: nginx
+      readinessProbe:
+        initialDelaySeconds: 5
+        periodSeconds: 5
+        httpGet:
+          path: /ready
+          port: 80
+#What is LivenessProbe and why do you need it?
+# LivenessProbe is basically a health check.
+## ~/nginx-pod-with-liveness-http.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: # ~/nginx-pod-with-liveness-http.yaml
+spec:
+  containers:
+    - name: # ~/nginx-pod-with-liveness-http.yaml
+      image: nginx
+      livenessProbe:
+        intialDelaySeconds: 5
+        httpGet:
+          path: /healthcheck
+          port: 80
+          httpHeaders:
+            - name: mycustomheader
+              value: mycustomheadervalue

@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: using-env
+spec:
+  containers:
+    - image: nginx
+      name: env-container
+      command:
+        ['sh','-c','echo configmap is :$useenv && sleep 3600']
+      env:
+        - name: useenv
+          valueFrom:
+            configMapKeyRef:
+              name: my-configmap
+              key: name
+
+        - name: course
+          valueFrom:
+            configMapKeyRef:
+              name: my-configmap
+              key: course
